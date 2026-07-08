@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano de Aporte — Luiz & Lenisa</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --bg-deep:#0A0C1A; --bg-card:#0F1225; --bg-elevated:#141728;
+  --navy:#1E2761; --gold:#C9A84C; --gold-light:#E8C97A;
+  --text-primary:#F0EDE6; --text-muted:#8B8FA8;
+  --success:#4CAF8C; --warning:#E8A83C; --danger:#E85C4A;
+  --border:rgba(201,168,76,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg-deep);color:var(--text-primary);font-family:'DM Sans',-apple-system,sans-serif;line-height:1.6}
+.mono{font-family:'DM Mono','Courier New',monospace}
+
+/* HERO */
+.hero{min-height:92vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:4rem 2rem;
+  background:radial-gradient(ellipse at 50% 0%,rgba(30,39,97,.4) 0%,transparent 70%),radial-gradient(ellipse at 80% 80%,rgba(201,168,76,.05) 0%,transparent 60%)}
+.hero-eyebrow{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem}
+.hero-name{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.5rem);font-weight:400;margin:0 0 1rem;line-height:1.1}
+.hero-meta{font-size:.85rem;color:var(--text-muted);margin-bottom:2rem}
+.hero-statement{font-size:1.1rem;color:var(--text-muted);max-width:640px;line-height:1.7}
+.hero-badge{margin-top:2.5rem;display:inline-block;border:1px solid var(--border);border-radius:999px;padding:.6rem 1.6rem;font-size:.85rem;color:var(--gold)}
+.hero-badge .mono{color:var(--text-primary);font-weight:500}
+
+/* SECTIONS */
+.section{max-width:960px;margin:0 auto;padding:4.5rem 1.5rem}
+.section-label{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:500;margin-bottom:1rem}
+.section-intro{color:var(--text-muted);max-width:680px;margin-bottom:2.5rem}
+
+/* METRIC CARDS */
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2.5rem}
+.metric-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
+.metric-label{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.5rem}
+.metric-value{font-family:'DM Mono',monospace;font-size:1.5rem;color:var(--gold);font-weight:500}
+.metric-sub{font-size:.8rem;color:var(--text-muted);margin-top:.4rem}
+
+/* CHARTS */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.chart-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
+.chart-card h3{font-family:'Playfair Display',serif;font-weight:500;font-size:1.05rem;text-align:center;margin-bottom:1rem;color:var(--text-primary)}
+.chart-wrap{position:relative;height:260px}
+@media(max-width:720px){.chart-row{grid-template-columns:1fr}}
+
+/* CLASS BARS */
+.class-row{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.4rem 1.5rem;margin-bottom:1rem}
+.class-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.5rem;margin-bottom:.9rem}
+.class-name{font-weight:600;font-size:1rem}
+.class-tag{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;padding:.25rem .7rem;border-radius:999px;font-weight:600}
+.tag-aportar{background:rgba(76,175,140,.12);color:var(--success);border:1px solid rgba(76,175,140,.3)}
+.tag-aguardar{background:rgba(232,168,60,.1);color:var(--warning);border:1px solid rgba(232,168,60,.3)}
+.bar-line{display:flex;align-items:center;gap:.8rem;margin-bottom:.45rem;font-size:.78rem;color:var(--text-muted)}
+.bar-line .lbl{width:52px;flex-shrink:0}
+.bar-track{flex:1;height:8px;background:var(--bg-elevated);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px}
+.bar-atual .bar-fill{background:#5A628F}
+.bar-obj .bar-fill{background:linear-gradient(90deg,var(--gold),var(--gold-light))}
+.bar-line .pct{width:52px;text-align:right;font-family:'DM Mono',monospace;color:var(--text-primary);font-size:.78rem}
+.class-foot{margin-top:.8rem;font-size:.85rem;color:var(--text-muted)}
+.class-foot strong{color:var(--gold);font-family:'DM Mono',monospace;font-weight:500}
+
+/* APORTE TABLES */
+.aporte-block{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1.6rem}
+.aporte-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;padding:1.2rem 1.5rem;background:linear-gradient(135deg,rgba(30,39,97,.35),transparent);border-bottom:1px solid var(--border)}
+.aporte-head h3{font-family:'Playfair Display',serif;font-weight:500;font-size:1.15rem}
+.aporte-total{font-family:'DM Mono',monospace;color:var(--gold);font-size:1.05rem;font-weight:500}
+.ativo-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1rem 1.5rem;border-bottom:1px solid rgba(139,143,168,.08)}
+.ativo-row:last-child{border-bottom:none}
+.ativo-info{min-width:0}
+.ativo-nome{font-weight:600;font-size:.95rem}
+.ativo-cond{font-size:.78rem;color:var(--text-muted);margin-top:.15rem}
+.ativo-valor{font-family:'DM Mono',monospace;font-size:1.05rem;color:var(--text-primary);white-space:nowrap}
+.ativo-novo{display:inline-block;font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);border:1px solid var(--border);border-radius:999px;padding:.1rem .5rem;margin-left:.5rem;vertical-align:middle}
+
+/* NOTE CARDS */
+.note{background:var(--bg-card);border-left:3px solid var(--warning);border-radius:0 12px 12px 0;padding:1.2rem 1.5rem;margin:1.5rem 0;font-size:.92rem;color:var(--text-muted)}
+.note strong{color:var(--text-primary)}
+.note.gold{border-left-color:var(--gold)}
+
+/* STEPS */
+.step{display:flex;gap:1.2rem;margin-bottom:1.4rem}
+.step-num{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--bg-deep);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.step-body{padding-top:.2rem}
+.step-body h4{font-size:.98rem;font-weight:600;margin-bottom:.2rem}
+.step-body p{font-size:.88rem;color:var(--text-muted)}
+
+/* FOOTER */
+footer{text-align:center;padding:3.5rem 1.5rem 3rem;border-top:1px solid var(--border);margin-top:3rem}
+footer .f-name{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.1rem;margin-bottom:.3rem}
+footer .f-sub{font-size:.8rem;color:var(--text-muted)}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD OVERLAY -->
+<div id="password-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0A0C1A;z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="text-align:center;padding:2rem;">
+    <div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:#C9A84C;margin-bottom:0.5rem;">Planejamento Financeiro</div>
+    <div style="font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#8B8FA8;margin-bottom:2rem;">Luiz &amp; Lenisa · Julho 2026</div>
+    <input id="pwd-input" type="password" placeholder="Senha de acesso"
+      style="background:#141728;border:1px solid rgba(201,168,76,0.3);color:#F0EDE6;padding:0.75rem 1.25rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:1rem;width:260px;outline:none;text-align:center;">
+    <br><br>
+    <button onclick="checkPassword()"
+      style="background:linear-gradient(135deg,#C9A84C,#E8C97A);color:#0A0C1A;border:none;padding:0.75rem 2rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:1rem;cursor:pointer;">
+      Acessar
+    </button>
+    <div id="pwd-error" style="color:#E85C4A;font-size:0.85rem;margin-top:1rem;display:none;">Senha incorreta. Tente novamente.</div>
+  </div>
+</div>
+
+<div id="main-content" style="display:none;">
+
+<!-- 1. HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Planejamento Financeiro Pessoal</div>
+  <h1 class="hero-name">Luiz &amp; Lenisa</h1>
+  <div class="hero-meta">Julho 2026 · Elaborado por Matheus Melo · Grão | Grupo Primo</div>
+  <p class="hero-statement">
+    Este plano define, ativo por ativo, como direcionar o novo aporte de vocês —
+    seguindo a alocação estrutural do perfil arrojado e comprando exatamente onde
+    a carteira está mais distante do objetivo.
+  </p>
+  <div class="hero-badge">Novo aporte deste mês: <span class="mono">R$ 6.000,00</span></div>
+</section>
+
+<!-- 2. SNAPSHOT -->
+<section class="section">
+  <div class="section-label">Situação Atual</div>
+  <h2 class="section-title">Onde a carteira está hoje</h2>
+  <p class="section-intro">
+    O patrimônio investido de vocês está distribuído nas quatro classes da estratégia ARCA.
+    Comparando a alocação atual com a estrutura-objetivo do perfil de vocês, fica claro
+    onde o aporte deve entrar — e onde não deve.
+  </p>
+
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="metric-label">Patrimônio Atual</div>
+      <div class="metric-value">R$ 57.123,62</div>
+      <div class="metric-sub">Antes do aporte</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Novo Aporte</div>
+      <div class="metric-value">R$ 6.000,00</div>
+      <div class="metric-sub">100% direcionado às classes abaixo do objetivo</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Patrimônio Após Aporte</div>
+      <div class="metric-value">R$ 63.123,62</div>
+      <div class="metric-sub">Mais próximo da estrutura ideal</div>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-card">
+      <h3>Alocação Atual</h3>
+      <div class="chart-wrap"><canvas id="chartAtual"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Alocação Objetivo (Estrutural)</h3>
+      <div class="chart-wrap"><canvas id="chartObjetivo"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. REBALANCEAMENTO POR CLASSE -->
+<section class="section">
+  <div class="section-label">Estratégia do Aporte</div>
+  <h2 class="section-title">Para onde vai cada real</h2>
+  <p class="section-intro">
+    O aporte foi dividido de forma proporcional à distância de cada classe em relação
+    ao seu peso-objetivo. Quanto mais abaixo do alvo, maior a fatia do aporte.
+  </p>
+
+  <div class="class-row">
+    <div class="class-head">
+      <span class="class-name">A — Ações e Negócios</span>
+      <span class="class-tag tag-aportar">Aportar</span>
+    </div>
+    <div class="bar-line bar-atual"><span class="lbl">Atual</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="pct">24,0%</span></div>
+    <div class="bar-line bar-obj"><span class="lbl">Objetivo</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="pct">30,0%</span></div>
+    <div class="class-foot">Fatia do aporte: <strong>R$ 2.495</strong></div>
+  </div>
+
+  <div class="class-row">
+    <div class="class-head">
+      <span class="class-name">R — Real Estate (Fundos Imobiliários)</span>
+      <span class="class-tag tag-aguardar">Aguardar</span>
+    </div>
+    <div class="bar-line bar-atual"><span class="lbl">Atual</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="pct">22,5%</span></div>
+    <div class="bar-line bar-obj"><span class="lbl">Objetivo</span><div class="bar-track"><div class="bar-fill" style="width:44%"></div></div><span class="pct">10,0%</span></div>
+    <div class="class-foot">Fatia do aporte: <strong>R$ 0</strong> — a classe está acima do objetivo; os próprios aportes futuros vão diluí-la naturalmente, sem necessidade de vender agora.</div>
+  </div>
+
+  <div class="class-row">
+    <div class="class-head">
+      <span class="class-name">C — Caixa (Renda Fixa)</span>
+      <span class="class-tag tag-aportar">Aportar</span>
+    </div>
+    <div class="bar-line bar-atual"><span class="lbl">Atual</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="pct">42,6%</span></div>
+    <div class="bar-line bar-obj"><span class="lbl">Objetivo</span><div class="bar-track"><div class="bar-fill" style="width:94%"></div></div><span class="pct">40,0%</span></div>
+    <div class="class-foot">Fatia do aporte: <strong>R$ 445</strong> — ajuste fino dentro da classe, direcionado ao ativo mais abaixo do peso.</div>
+  </div>
+
+  <div class="class-row">
+    <div class="class-head">
+      <span class="class-name">A — Ativos Internacionais</span>
+      <span class="class-tag tag-aportar">Aportar</span>
+    </div>
+    <div class="bar-line bar-atual"><span class="lbl">Atual</span><div class="bar-track"><div class="bar-fill" style="width:54%"></div></div><span class="pct">10,9%</span></div>
+    <div class="bar-line bar-obj"><span class="lbl">Objetivo</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="pct">20,0%</span></div>
+    <div class="class-foot">Fatia do aporte: <strong>R$ 3.060</strong> — é a classe mais distante do objetivo e por isso recebe a maior parte do aporte.</div>
+  </div>
+</section>
+
+<!-- 4. PLANO DE COMPRA POR ATIVO -->
+<section class="section">
+  <div class="section-label">Execução</div>
+  <h2 class="section-title">Plano de compra, ativo por ativo</h2>
+  <p class="section-intro">
+    Dentro de cada classe, o aporte foi direcionado aos ativos da carteira recomendada
+    que estão mais abaixo do peso ideal. Respeitem sempre o preço máximo de compra —
+    se o ativo estiver acima, o valor aguarda no caixa até a próxima janela.
+  </p>
+
+  <div class="aporte-block">
+    <div class="aporte-head">
+      <h3>Ações e Negócios</h3>
+      <span class="aporte-total">R$ 2.495</span>
+    </div>
+    <div class="ativo-row">
+      <div class="ativo-info">
+        <div class="ativo-nome">PRIO3 — Prio</div>
+        <div class="ativo-cond">Comprar somente até R$ 69,24 por ação</div>
+      </div>
+      <div class="ativo-valor">R$ 900</div>
+    </div>
+    <div class="ativo-row">
+      <div class="ativo-info">
+        <div class="ativo-nome">VAMO3 — Vamos<span class="ativo-novo">Posição nova</span></div>
+        <div class="ativo-cond">Comprar somente até R$ 5,54 por ação</div>
+      </div>
+      <div class="ativo-valor">R$ 800</div>
+    </div>
+    <div class="ativo-row">
+      <div class="ativo-info">
+        <div class="ativo-nome">GMAT3 — Grupo Mateus</div>
+        <div class="ativo-cond">Comprar somente até R$ 6,92 por ação</div>
+      </div>
+      <div class="ativo-valor">R$ 795</div>
+    </div>
+  </div>
+
+  <div class="aporte-block">
+    <div class="aporte-head">
+      <h3>Ativos Internacionais</h3>
+      <span class="aporte-total">R$ 3.060</span>
+    </div>
+    <div class="ativo-row">
+      <div class="ativo-info">
+        <div class="ativo-nome">WRLD11 — Ações globais</div>
+        <div class="ativo-cond">Home broker, a preço de mercado — principal posição internacional da carteira</div>
+      </div>
+      <div class="ativo-valor">R$ 1.865</div>
+    </div>
+    <div class="ativo-row">
+      <div class="ativo-info">
+        <div class="ativo-nome">MS Global Opportunities<span class="ativo-novo">Posição nova</span></div>
+        <div class="ativo-cond">Fundo disponível na XP · aplicação mínima R$ 500</div>
+      </div>
+      <div class="ativo-valor">R$ 795</div>
+    </div>
+    <div class="ativo-row">
+      <div class="ativo-info">
+        <div class="ativo-nome">BNDX11 — Renda fixa internacional<span class="ativo-novo">Posição nova</span></div>
+        <div class="ativo-cond">Home broker, a preço de mercado</div>
+      </div>
+      <div class="ativo-valor">R$ 400</div>
+    </div>
+  </div>
+
+  <div class="aporte-block">
+    <div class="aporte-head">
+      <h3>Caixa (Renda Fixa)</h3>
+      <span class="aporte-total">R$ 445</span>
+    </div>
+    <div class="ativo-row">
+      <div class="ativo-info">
+        <div class="ativo-nome">Tesouro IPCA+ 2050</div>
+        <div class="ativo-cond">Comprar somente com taxa a partir de IPCA + 6,5% ao ano</div>
+      </div>
+      <div class="ativo-valor">R$ 445</div>
+    </div>
+  </div>
+
+  <div class="note gold">
+    <strong>Por que USDB11, GOLD11 e ALUG11 ficam de fora deste aporte?</strong><br>
+    As três posições já estão no peso ideal (ou levemente acima) dentro da classe internacional.
+    Aportar nelas agora afastaria a carteira do objetivo — a prioridade é reforçar WRLD11 e
+    abrir as duas posições que ainda faltam na estrutura recomendada.
+  </div>
+</section>
+
+<!-- 5. PRÓXIMOS PASSOS -->
+<section class="section">
+  <div class="section-label">Próximos Passos</div>
+  <h2 class="section-title">Como executar</h2>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h4>Transferir o aporte para a corretora</h4>
+      <p>R$ 6.000 disponíveis em conta antes de enviar as ordens.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h4>Executar as compras respeitando os limites de preço</h4>
+      <p>Ações e ETFs pelo home broker; MS Global Opportunities pela plataforma de fundos da XP; Tesouro IPCA+ 2050 apenas se a taxa estiver em IPCA + 6,5% ou mais.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h4>Se algum ativo estiver acima do preço máximo</h4>
+      <p>O valor correspondente fica no caixa remunerado e entra na fila do próximo aporte — disciplina de preço faz parte da estratégia.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <h4>Me confirmar a execução</h4>
+      <p>Com as ordens executadas, atualizo a carteira de vocês e já deixo mapeado o direcionamento do próximo aporte.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="f-name">Matheus Melo</div>
+  <div class="f-sub">Planejador Financeiro Pessoal · Grão | Grupo Primo</div>
+  <div class="f-sub" style="margin-top:.6rem">Objetivo → Estratégia → Produto</div>
+</footer>
+
+</div>
+
+<script>
+function checkPassword() {
+  const input = document.getElementById('pwd-input').value;
+  if (input === 'luiz2026') {
+    document.getElementById('password-overlay').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    initCharts();
+  } else {
+    document.getElementById('pwd-error').style.display = 'block';
+  }
+}
+document.getElementById('pwd-input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') checkPassword();
+});
+
+function initCharts() {
+  const labels = ['Ações e Negócios','Real Estate','Caixa (Renda Fixa)','Internacionais'];
+  const cores = ['#C9A84C','#5A628F','#4CAF8C','#E8C97A'];
+  const opts = {
+    responsive:true, maintainAspectRatio:false, cutout:'62%',
+    plugins:{
+      legend:{position:'bottom',labels:{color:'#8B8FA8',font:{family:'DM Sans',size:11},padding:14,usePointStyle:true,pointStyleWidth:8}},
+      tooltip:{callbacks:{label:(c)=> c.label+': '+c.parsed.toFixed(1)+'%'}}
+    }
+  };
+  new Chart(document.getElementById('chartAtual'), {
+    type:'doughnut',
+    data:{labels:labels,datasets:[{data:[24.0,22.5,42.6,10.9],backgroundColor:cores,borderColor:'#0F1225',borderWidth:3}]},
+    options:opts
+  });
+  new Chart(document.getElementById('chartObjetivo'), {
+    type:'doughnut',
+    data:{labels:labels,datasets:[{data:[30,10,40,20],backgroundColor:cores,borderColor:'#0F1225',borderWidth:3}]},
+    options:opts
+  });
+}
+</script>
+</body>
+</html>
